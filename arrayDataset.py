@@ -55,8 +55,8 @@ class ArrayDataset(Dataset):
 
         # Normalize the images
         if self.normalize:
-            target_img = normalize(target_img, self.normalize_means, self.normalize_stds)
-            context_img = normalize(context_img, self.normalize_means, self.normalize_stds)
+            transforms.Normalize(target_img, self.normalize_means, self.normalize_stds)
+            transforms.Normalize(context_img, self.normalize_means, self.normalize_stds)
 
         return context_img, target_img, (max(image_positions[gtpos][0] - self.target_size/2, 0) , max(image_positions[gtpos][1] - self.target_size/2,0), self.target_size, self.target_size)
 
