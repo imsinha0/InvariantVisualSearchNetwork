@@ -12,9 +12,6 @@ import random
 from collections import OrderedDict, Counter
 
 
-image_positions = {1:(56, 539), 2:(54, 234), 3:(330,85), 4:(592, 230), 5:(584, 530), 6:(337, 675)} #centers
-
-
 class ArrayDataset(Dataset):
     '''
     Dataset to load in ObjectArray data and targets
@@ -58,5 +55,5 @@ class ArrayDataset(Dataset):
             transforms.Normalize(target_img, self.normalize_means, self.normalize_stds)
             transforms.Normalize(context_img, self.normalize_means, self.normalize_stds)
 
-        return context_img, target_img, (max(image_positions[gtpos][0] - self.target_size/2, 0) , max(image_positions[gtpos][1] - self.target_size/2,0), self.target_size, self.target_size)
+        return context_img, target_img, gtpos
 
