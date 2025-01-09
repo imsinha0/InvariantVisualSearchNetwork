@@ -1,4 +1,4 @@
-
+import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from torch.utils.data import Dataset
@@ -16,19 +16,26 @@ def get_bounding_box(image):
     Get the bounding box of a white box in a black image.
 
     Args:
-        image (torch.Tensor): A binary image of shape (H, W) where the white region (value=1) represents the box.
+        image (torch.Tensor): A tensor of shape (3, H, W) representing an RGB image
+                              where the white region is the same across all channels.
 
     Returns:
         tuple: (x_min, y_min, x_max, y_max) coordinates of the bounding box.
     """
-    # Find indices of all non-zero (white) pixels
-    non_zero_indices = torch.nonzero(image, as_tuple=True)  # Returns (y_indices, x_indices)
+    # Combine the three channels into a single-channel binary mask
+    # Assume white pixels have the same value across all channels and are significantly brighter
+    grayscale = image.sum(dim=0)  # Sum across the channels, resulting in shape (H, W)
+    binary_mask = grayscale > 0  # Threshold: Non-black pixels become True (1)
 
-    # Get bounding box coordinates
-    y_min, y_max = torch.min(non_zero_indices[0]).item(), torch.max(non_zero_indices[0]).item()
-    x_min, x_max = torch.min(non_zero_indices[1]).item(), torch.max(non_zero_indices[1]).item()
+    # Find the coordinates of the white region
+    white_pixels = torch.nonzero(binary_mask)  # shape: (N, 2), where N is the number of white pixels
 
-    return x_min, y_min, x_max, y_max
+    # Extract the min and max coordinates
+    y_min, x_min = white_pixels.min(dim=0).values
+    y_max, x_max = white_pixels.max(dim=0).values
+
+    return x_min.item(), y_min.item(), x_max.item(), y_max.item()
+
 
 
 class NaturalSceneDataset(Dataset):
@@ -59,10 +66,9 @@ class NaturalSceneDataset(Dataset):
         # Load the target and context images
         target_img = Image.open(f'{self.target_dir}/t{(idx + 1):03d}.jpg')
         stimuli_img = Image.open(f'{self.stimuli_dir}/img{(idx + 1):03d}.jpg')
-        gt_img = Image.open(f'{self.gt_dir}/gt{idx+1}.jpg')
+        gt_img = Image.open(f'{self.gt_dir}/gt{idx+1}.jpg') # [3, 1024, 1280]
 
         # Determine the bounding box of the target object
-
         xmin, ymin, xmax, ymax = get_bounding_box(to_tensor(gt_img))
 
 

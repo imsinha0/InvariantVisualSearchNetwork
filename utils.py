@@ -47,4 +47,43 @@ def arraySearchProcesswithPath(attentionMap, gtpos):
     return numSearches, searchPath
 
 
+def naturalSearchProcesswithPath(attentionMap, bbox):
+    numSearches = 0
+    searchPath = []
+
+    #bbox is tuple of (x_min, y_min, x_max, y_max)
+
+    #convert attentionMap to numpy array
+    attentionMap = attentionMap.numpy()
+
+    found = False
+    while(not found):
+        numSearches += 1
+
+        #print max value in attentionMap, which is a tensor
+        print("max value in attentionMap", np.max(attentionMap))
+
+        #get maxpoint as tuple
+        maxPoint = np.unravel_index(np.argmax(attentionMap), attentionMap.shape) #y then x
+        maxPoint = (maxPoint[1], maxPoint[0]) #x then y
+
+        searchPath.append(maxPoint)
+
+        print("searching at", maxPoint)
+
+        #want to check if maxPoint is within bbox
+        if maxPoint[0] >= bbox[0] and maxPoint[0] <= bbox[2] and maxPoint[1] >= bbox[1] and maxPoint[1] <= bbox[3]:
+            found = True
+        else:
+            #set attentionMap to 0 in 200x200 region around maxPoint
+            x, y = maxPoint
+            x_start = max(0, x - 100)
+            x_end = min(attentionMap.shape[1], x + 100)
+            y_start = max(0, y - 100)
+            y_end = min(attentionMap.shape[0], y + 100)
+            attentionMap[y_start:y_end, x_start:x_end] = 0
+
+    return numSearches, searchPath
+
+
 
