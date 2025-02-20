@@ -82,7 +82,7 @@ def naturalSearchProcesswithPathNaiveGaussian(attentionMap, mean, std):
 
 def naturalSearchProcesswithEdgeDensity(attentionMap, stimuli_img):
     edge_density = compute_edge_density(stimuli_img)
-    return naturalSearchProcesswithPathNaiveEvidenceAccumulation(attentionMap, np.exp(-edge_density))
+    return naturalSearchProcesswithPathNaiveEvidenceAccumulation(attentionMap, 2+2*edge_density)
 
 
 def naturalSearchProcesswithPathNaiveEvidenceAccumulation(attentionMap, threshold):
